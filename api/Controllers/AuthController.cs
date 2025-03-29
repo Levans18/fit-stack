@@ -5,6 +5,8 @@ using FitStack.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
+using FitStack.API.Services;
 
 namespace FitStack.API.Controllers
 {
@@ -14,11 +16,13 @@ namespace FitStack.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly TokenService _tokenService;
         private readonly PasswordHasher<User> _hasher = new();
 
-        public AuthController(AppDbContext context)
+        public AuthController(AppDbContext context, TokenService tokenService)
         {
             _context = context;
+            _tokenService = tokenService;
         }
 
         [HttpPost("Register")]
@@ -39,7 +43,19 @@ namespace FitStack.API.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "User registered successfully" });
+            var token = _tokenService.CreateToken(user);
+    
+            return Ok(new
+            {
+                message = "User Registered Successfully",
+                token,
+                user = new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email,
+                }
+            });
         }
 
         [HttpPost("login")]
@@ -54,8 +70,19 @@ namespace FitStack.API.Controllers
             if (result != PasswordVerificationResult.Success)
                 return Unauthorized("Invalid password");
 
-            //Placeholder: JWT generation will go here later
-            return Ok(new { message = "Login successful (JWT coming soon)"});
+            var token = _tokenService.CreateToken(user);
+
+            return Ok(new
+            {
+                message = "Login Successful",
+                token,
+                user = new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email,
+                }
+            });
         }
     }
 }
