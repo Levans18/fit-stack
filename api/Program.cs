@@ -3,21 +3,41 @@ using FitStack.API.Services;
 using FitStack.API.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Razor.TagHelpers;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 👇 Add your connection string in appsettings.json
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-var jwtConfig = builder.Configuration.GetSection("Jwt");
-builder.Services.Configure<JwtOptions>(jwtConfig);
+// Bind JwtOptions to make it available via IOptions<JwtOptions>
+var jwtSection = builder.Configuration.GetSection("Jwt");
+builder.Services.Configure<JwtOptions>(jwtSection);
 builder.Services.AddScoped<TokenService>();
 
-// var jwtOptions = jwtConfig.Get<JwtOptions>();
-// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//     .AddJwtBearer(options =>)
+// Use inline config for JWT middleware (no risk of null)
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var key = builder.Configuration["Jwt:Key"];
+        var issuer = builder.Configuration["Jwt:Issuer"];
+        var audience = builder.Configuration["Jwt:Audience"];
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
+            ValidateAudience = true,
+            ValidAudience = audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key!)),
+            ValidateLifetime = true
+        };
+    });
 
 
 builder.Services.AddControllers();
@@ -30,6 +50,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
