@@ -13,7 +13,7 @@
 
 ### Backend
 - [ASP.NET Core Web API](https://learn.microsoft.com/en-us/aspnet/core/web-api/)
-- Microsoft SQL Server (Azure-hosted)
+- Microsoft SQL Server (hosted via [Amazon RDS](https://aws.amazon.com/rds/sqlserver/))
 - JSON Web Tokens (JWT) for authentication
 
 ### Mobile (Coming Soon)
@@ -21,9 +21,9 @@
 
 ### DevOps / Deployment
 - Frontend: [Vercel](https://vercel.com/)
-- Backend: [Azure App Service](https://azure.microsoft.com/en-us/products/app-service/)
+- Backend:  [AWS Elastic Beanstalk](https://aws.amazon.com/elasticbeanstalk/) or [App Runner](https://aws.amazon.com/apprunner/)
 - CI/CD: GitHub Actions (optional)
-- Database: Azure SQL (Free Tier)
+- Database: Amazon RDS (Free Tier-compatible)
 
 ---
 
