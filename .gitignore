@@ -35,6 +35,13 @@ obj/
 *.cache/
 *.log
 
+# .NET build artifacts
+**/obj/
+**/bin/
+project.nuget.cache
+project.assets.json
+*.csproj.nuget.dgspec.json
+
 # Visual Studio
 .vs/
 .vscode/
