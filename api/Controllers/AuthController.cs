@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 using FitStack.API.Services;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace FitStack.API.Controllers
 {
@@ -81,6 +84,34 @@ namespace FitStack.API.Controllers
                     id = user.Id,
                     username = user.Username,
                     email = user.Email,
+                }
+            });
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+            if (userIdClaim == null)
+                return Unauthorized("Invalid Token");
+
+            if (!int.TryParse(userIdClaim, out var userId))
+                return Unauthorized("Invalid user ID");
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                return NotFound("User Not Found.");
+
+            return Ok(new
+            {
+                message = "Authenticated User Retreived",
+                user = new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email
                 }
             });
         }
