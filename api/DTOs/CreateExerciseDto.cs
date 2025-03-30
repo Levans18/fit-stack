@@ -6,6 +6,9 @@ namespace FitStack.API.DTOs
     public class CreateExerciseDto
     {
         [Required]
+        public int WorkoutId { get; set; }
+
+        [Required]
         public string Name { get; set; } = null!;
 
         [Range(1, 100)]

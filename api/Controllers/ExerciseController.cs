@@ -9,7 +9,7 @@ using FitStack.API.Services;
 namespace FitStack.API.Controllers
 {
     [ApiController]
-    [Route("workouts/{workoutId}/exercises")]
+    [Route("exercises")]
     [Authorize]
     public class ExerciseController : ControllerBase
     {
@@ -22,15 +22,15 @@ namespace FitStack.API.Controllers
             _currentUserService = currentUserService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddExerciseToWorkout(int workoutId, [FromBody] CreateExerciseDto dto)
+         [HttpPost]
+        public async Task<IActionResult> CreateExercise([FromBody] CreateExerciseDto dto)
         {
             var (user, error) = await _currentUserService.GetAsync();
             if (user == null) return Unauthorized(error);
 
             var workout = await _context.Workouts
                 .Include(w => w.Exercises)
-                .FirstOrDefaultAsync(w => w.Id == workoutId && w.UserId == user.Id);
+                .FirstOrDefaultAsync(w => w.Id == dto.WorkoutId && w.UserId == user.Id);
 
             if (workout == null)
                 return NotFound("Workout not found.");
@@ -41,7 +41,7 @@ namespace FitStack.API.Controllers
                 Sets = dto.Sets,
                 Reps = dto.Reps,
                 Weight = dto.Weight,
-                WorkoutId = workoutId
+                WorkoutId = dto.WorkoutId
             };
 
             _context.Exercises.Add(exercise);
@@ -56,20 +56,44 @@ namespace FitStack.API.Controllers
                     name = exercise.Name,
                     sets = exercise.Sets,
                     reps = exercise.Reps,
-                    weight = exercise.Weight
+                    weight = exercise.Weight,
+                    workoutId = exercise.WorkoutId
                 }
             });
         }
 
+         [HttpGet("{exerciseId}")]
+        public async Task<IActionResult> GetExerciseById(int exerciseId)
+        {   
+            var (user, error) = await _currentUserService.GetAsync();
+            if (user == null) return Unauthorized(error);
+
+            var exercise = await _context.Exercises
+                .FirstOrDefaultAsync(e => e.Id == exerciseId && e.Workout.UserId == user.Id);
+
+            if (exercise == null)
+                return NotFound("Exercise not found.");
+
+            return Ok(new
+            {
+                id = exercise.Id,
+                name = exercise.Name,
+                sets = exercise.Sets,
+                reps = exercise.Reps,
+                weight = exercise.Weight,
+                workoutId = exercise.WorkoutId,
+            });
+        }
+
         [HttpPut("{exerciseId}")]
-        public async Task<IActionResult> UpdateExercise(int workoutId, int exerciseId, [FromBody] CreateExerciseDto dto)
+        public async Task<IActionResult> UpdateExercise(int exerciseId, [FromBody] CreateExerciseDto dto)
         {
             var (user, error) = await _currentUserService.GetAsync();
             if (user == null) return Unauthorized(error);
 
             var exercise = await _context.Exercises
                 .Include(e => e.Workout)
-                .FirstOrDefaultAsync(e => e.Id == exerciseId && e.WorkoutId == workoutId && e.Workout.UserId == user.Id);
+                .FirstOrDefaultAsync(e => e.Id == exerciseId && e.Workout.UserId == user.Id);
 
             if (exercise == null)
                 return NotFound("Exercise not found.");
@@ -85,14 +109,14 @@ namespace FitStack.API.Controllers
         }
 
         [HttpDelete("{exerciseId}")]
-        public async Task<IActionResult> DeleteExercise(int workoutId, int exerciseId)
+        public async Task<IActionResult> DeleteExercise(int exerciseId)
         {
             var (user, error) = await _currentUserService.GetAsync();
             if (user == null) return Unauthorized(error);
 
             var exercise = await _context.Exercises
                 .Include(e => e.Workout)
-                .FirstOrDefaultAsync(e => e.Id == exerciseId && e.WorkoutId == workoutId && e.Workout.UserId == user.Id);
+                .FirstOrDefaultAsync(e => e.Id == exerciseId && e.Workout.UserId == user.Id);
 
             if (exercise == null)
                 return NotFound("Exercise not found.");
