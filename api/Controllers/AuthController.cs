@@ -38,7 +38,7 @@ namespace FitStack.API.Controllers
             {
                 Username = dto.Username,
                 Email = dto.Email,
-                PasswordHash = "" //Will be set next
+                PasswordHash = ""
             };
 
             user.PasswordHash = _hasher.HashPassword(user, dto.Password);
