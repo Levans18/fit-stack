@@ -9,5 +9,7 @@ namespace FitStack.API.Data
             : base(options) { }
 
         public DbSet<User> Users => Set<User>();
+        public DbSet<Workout> Workouts => Set<Workout>();
+        public DbSet<Exercise> Exercises => Set<Exercise>();
     }
 }
