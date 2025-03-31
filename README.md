@@ -45,7 +45,6 @@ FitStack/
 ├── api/          # ASP.NET Core Web API
 ├── web/          # React frontend (Vite)
 ├── mobile/       # .NET MAUI app (in progress)
-├── shared/       # Shared models (optional)
 ├── README.md
 └── FitStack.sln
 ```
