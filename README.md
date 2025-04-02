@@ -45,7 +45,6 @@ FitStack/
 ├── api/          # ASP.NET Core Web API
 ├── web/          # React frontend (Vite)
 ├── mobile/       # .NET MAUI app (in progress)
-├── shared/       # Shared models (optional)
 ├── README.md
 └── FitStack.sln
 ```
@@ -58,10 +57,10 @@ FitStack/
 - Project scaffold: React + Vite frontend, ASP.NET Core backend
 - GitHub repository and project structure
 - Initial README with goals and tech stack
-
-### 🛠️ In Progress
 - Implementing JWT-based user authentication
 - Creating workout tracking models and API endpoints
+
+### 🛠️ In Progress
 - Connecting React frontend to the backend API
 - Basic frontend pages (Login, Register, Dashboard)
 
