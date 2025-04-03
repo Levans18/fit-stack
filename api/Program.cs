@@ -43,6 +43,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowDevClient", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173") // 👈 your Vite frontend
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials(); // optional if you're using cookies/auth
+    });
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -53,7 +64,8 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+app.UseCors("AllowDevClient");
 app.UseAuthentication();
 app.UseAuthorization();
 

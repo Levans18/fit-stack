@@ -1,72 +1,128 @@
-import { FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { motion } from 'framer-motion'
+import { Link, useNavigate } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
+import { useState } from 'react'
 
-function LoginPage() {
-  const navigate = useNavigate();
-  const [usernameOrEmail, setUsernameOrEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
+export default function LoginPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
 
-  const handleLogin = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (email: string, password: string) => {
+    setLoading(true)
+    setError(null)
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        method: "POST",
+      const res = await fetch('http://localhost:5168/auth/login', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ usernameOrEmail, password }),
-      });
+        body: JSON.stringify({ usernameOrEmail: email, password }),
+      })
 
       if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Login failed");
+        const err = await res.text()
+        throw new Error(err || 'Login failed')
       }
 
-      const data = await res.json();
-      localStorage.setItem("token", data.token);
-      navigate("/dashboard");
+      const data = await res.json()
+      localStorage.setItem('token', data.token)
+
+      navigate('/dashboard')
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unexpected error occurred.");
-      }
+        if (err instanceof Error) {
+          setError(err.message)
+        } else {
+          setError('Something went wrong')
+        }
+    } finally {
+      setLoading(false)
     }
-  };
+  }
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    handleLogin(email, password)
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
-      <form onSubmit={handleLogin} className="bg-gray-900 p-6 rounded-2xl w-80 shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Login</h2>
-        {error && <p className="text-red-500 mb-2">{error}</p>}
-        <input
-          className="w-full mb-2 p-2 rounded bg-gray-800"
-          type="text"
-          placeholder="Username or Email"
-          value={usernameOrEmail}
-          onChange={(e) => setUsernameOrEmail(e.target.value)}
-        />
-        <input
-          className="w-full mb-4 p-2 rounded bg-gray-800"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button className="w-full bg-green-500 hover:bg-green-600 text-white p-2 rounded" type="submit">
-          Log In
-        </button>
-        <p className="text-sm mt-2 text-center">
-          No account?{" "}
-          <a href="/register" className="text-green-400 underline">
-            Register
-          </a>
-        </p>
-      </form>
-    </div>
-  );
-} 
+    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-white via-gray-100 to-white px-4 relative">
 
-export default LoginPage;
+      {/* Back arrow */}
+      <Link
+        to="/"
+        className="absolute top-6 left-6 flex items-center text-blue-600 hover:underline text-sm z-20"
+      >
+        <ArrowLeft className="w-4 h-4 mr-1" />
+        Back to home
+      </Link>
+
+      <motion.div
+        className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border border-border z-10"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+      >
+        <h2 className="text-3xl font-bold text-blue-900 mb-6 text-center">
+          Welcome back 👋
+        </h2>
+
+        <form className="space-y-5" onSubmit={onSubmit}>
+          <div>
+            <label htmlFor="email" className="block text-sm text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm text-gray-700 mb-1">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          {error && (
+            <p className="text-sm text-red-600 text-center">{error}</p>
+          )}
+
+          <div className="pt-4">
+            <button
+              type="submit"
+              className="w-full py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Log In'}
+            </button>
+          </div>
+        </form>
+
+        <p className="text-sm text-gray-500 text-center mt-6">
+          Don&apos;t have an account?{' '}
+          <Link to="/register" className="text-blue-600 hover:underline">
+            Sign up
+          </Link>
+        </p>
+      </motion.div>
+    </div>
+  )
+}
