@@ -59,10 +59,12 @@ FitStack/
 - Initial README with goals and tech stack
 - Implementing JWT-based user authentication
 - Creating workout tracking models and API endpoints
-
-### 🛠️ In Progress
 - Connecting React frontend to the backend API
 - Basic frontend pages (Login, Register, Dashboard)
+
+### 🛠️ In Progress
+- Adding Workout Creation and Tracking
+- Setting up AWS (free tier) for Prod
 
 ### 🔜 Coming Soon
 - Workout history timeline/calendar
