@@ -25,7 +25,8 @@ namespace FitStack.API.Services
             if (userPrincipal == null)
                 return (null, "Missing authentication context.");
 
-            var sub = userPrincipal.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            var sub = userPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
+
             if (sub == null)
                 return (null, "Token is missing user ID.");
             if (!int.TryParse(sub, out var userId))

@@ -42,6 +42,4 @@ namespace FitStack.API.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
-
-
 }
