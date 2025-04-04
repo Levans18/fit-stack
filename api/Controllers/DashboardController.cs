@@ -35,11 +35,25 @@ public class DashboardController : ControllerBase
         var totalExercises = workouts.SelectMany(w => w.Exercises).Count();
         var totalWorkouts = workouts.Count;
         var lastWorkout = workouts.FirstOrDefault();
+        var thisWeekWorkouts = workouts.Where(w => w.Date >= DateTime.UtcNow.AddDays(-7)).ToList();
 
         return Ok(new
         {
             totalExercises,
             totalWorkouts,
+            thisWeekWorkouts = thisWeekWorkouts.Select(w => new
+            {
+                w.Id,
+                w.Name,
+                w.Date,
+                exercises = w.Exercises.Select(e => new
+                {
+                    e.Name,
+                    e.Sets,
+                    e.Reps,
+                    e.Weight
+                })
+            }),
             lastWorkout = lastWorkout != null ? new {
                 date = lastWorkout.Date,
                 exercises = lastWorkout.Exercises.Select(e => new {

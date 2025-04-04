@@ -92,6 +92,7 @@ namespace FitStack.API.Controllers
             };
 
             _context.Add(workout);
+            await _context.SaveChangesAsync(); // <--- This line is crucial
 
             return Ok(new{
                 message = "Successfully Created The Workout",

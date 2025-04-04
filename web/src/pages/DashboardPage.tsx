@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 // Define the expected structure of the dashboard data
 interface DashboardData {
@@ -55,10 +56,20 @@ export default function Dashboard() {
         >
           <Card title="Total Workouts" value={data.totalWorkouts} />
           <Card title="Total Exercises" value={data.totalExercises} />
-          <Card title="Total Volume" value={`${data.totalVolume} lbs`} />
           <Card title="Weekly Streak" value={`${data.weeklyStreak} days`} />
+          <Card title="Manage My Workouts" value={data.totalVolume} />
         </motion.div>
       )}
+
+      {/* Add the button here */}
+      <div className="mt-8">
+        <Link
+          to="/my-workouts"
+          className="inline-block bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition"
+        >
+          View My Workouts
+        </Link>
+      </div>
     </div>
   );
 }
