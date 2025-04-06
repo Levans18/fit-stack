@@ -1,78 +1,112 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AddWorkoutModal } from '@/components/modals/AddWorkoutModal';
+import { useWorkoutContext } from '@/hooks/useWorkoutContext';
+import WorkoutList from '@/components/WorkoutList';
+import WorkoutCalendar from '@/components/WorkoutCalendar';
+import { ArrowLeft } from 'lucide-react';
+
+type Workout = {
+  id: number;
+  name: string;
+  date: string;
+};
 
 export default function MyWorkoutsPage() {
-  const [workouts, setWorkouts] = useState([]);
+  const { fetchWorkouts, deleteWorkout, error } = useWorkoutContext(); // Use context actions
+  const [pastWorkouts, setPastWorkouts] = useState<Workout[]>([]);
+  const [upcomingWorkouts, setUpcomingWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchWorkouts = async () => {
+  // Fetch workouts and update state
+  const handleFetchWorkouts = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5168/workouts', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-
-      if (!res.ok) throw new Error('Failed to fetch workouts.');
-      const data = await res.json();
-      setWorkouts(data);
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred.');
+      const data = await fetchWorkouts();
+      setPastWorkouts(data.pastWorkouts);
+      setUpcomingWorkouts(data.upcomingWorkouts);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleWorkoutAdded = async () => {
-    await fetchWorkouts(); // Refetch workouts from the backend
+  // Delete a workout and refetch workouts
+  const handleDeleteWorkout = async (e: React.MouseEvent, workoutId: number) => {
+    e.stopPropagation(); // Prevent the click from triggering the Link
+    await deleteWorkout(workoutId);
+    await handleFetchWorkouts();
   };
-  
+
+  const handleDateClick = (date: Date) => {
+    console.log('Selected Date:', date);
+  };
+
   useEffect(() => {
-    fetchWorkouts();
+    handleFetchWorkouts();
   }, []);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
+  const noWorkouts = pastWorkouts.length === 0 && upcomingWorkouts.length === 0;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-white p-6">
-      <h1 className="text-3xl font-bold text-blue-900 mb-8">My Workouts</h1>
-
-      {workouts.length === 0 ? (
-        <div className="text-center">
-          <p className="text-gray-700 text-lg mb-4">You don't have any workouts yet.</p>
+      <header className="flex items-start mb-8">
+        <Link to="/dashboard" className="text-blue-600 hover:underline mt-.75">
+          <ArrowLeft size={40} className="inline mr-1" />
+        </Link>
+        <h1 className="text-4xl font-bold text-blue-900">My Workouts</h1>
+      </header>
+      <section>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="mb-4 bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition"
+        >
+          Add Workout
+        </button>
+      </section>
+      {noWorkouts ? (
+        <div className="text-center mt-16">
+          <p className="text-gray-700 text-lg mb-4">
+            You don't have any workouts yet. Start tracking your fitness journey today!
+          </p>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-block bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition"
           >
             Add Your First Workout
           </button>
         </div>
       ) : (
-        <ul className="space-y-4">
-            <button
-            onClick={() => setIsModalOpen(true)}
-            className="mb-4 bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition"
-          > Add a Workout</button>
-          {workouts.map((workout: any) => (
-            <li key={workout.id} className="bg-white shadow-md rounded-lg p-4">
-              <Link to={`/workouts/${workout.id}`} className="text-blue-600 font-bold">
-                {workout.name}
-              </Link>
-              <p className="text-gray-500">Date: {new Date(workout.date).toLocaleDateString()}</p>
-            </li>
-          ))}
-        </ul>
+        <section className="mb-8 flex justify-between h-[calc(100vh-200px)]">
+          {/* Left: Upcoming Workouts */}
+          <div className="w-1/2 pr-4 overflow-y-auto">
+            <WorkoutList
+              title="Upcoming Workouts"
+              workouts={upcomingWorkouts}
+              onDelete={handleDeleteWorkout}
+            />
+            <WorkoutList
+              title="Past Workouts"
+              workouts={pastWorkouts}
+              onDelete={handleDeleteWorkout}
+            />
+          </div>
+          {/* Right: Calendar */}
+          <div className="w-1/2 pl-4 h-full">
+            <WorkoutCalendar
+              workouts={[...pastWorkouts, ...upcomingWorkouts]}
+              onDateClick={handleDateClick}
+            />
+          </div>
+        </section>
       )}
-
-    <AddWorkoutModal
+      <AddWorkoutModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onWorkoutAdded={handleWorkoutAdded}
+        onWorkoutAdded={handleFetchWorkouts}
       />
     </div>
   );

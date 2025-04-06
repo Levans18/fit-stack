@@ -37,8 +37,16 @@ namespace FitStack.API.Controllers
             var workouts = await _workoutService.GetWorkoutsForUserAsync(user);
             if (workouts == null || workouts.Count == 0) 
                 return NotFound("No workouts found.");
+
+            var now = DateTime.UtcNow;
+            var pastWorkouts = workouts.Where(w => w.Date < now).OrderByDescending(w => w.Date).ToList();
+            var upcomingWorkouts = workouts.Where(w => w.Date >= now).OrderBy(w => w.Date).ToList();
             
-            return Ok(workouts);
+            return Ok(new
+            {
+                pastWorkouts,
+                upcomingWorkouts
+            });
         }
 
        [HttpGet("{id}")]
@@ -81,6 +89,22 @@ namespace FitStack.API.Controllers
                     date = workout.Date,
                 }
             });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteWorkout(int id)
+        {
+            var (user, error) = await _currentUserService.GetAsync();
+            if (user == null) return Unauthorized(error);
+
+            var workout = await _workoutService.GetWorkoutByIdAsync(id, user); 
+
+            if (workout == null)
+                return NotFound("Workout not found.");
+
+            await _workoutService.DeleteWorkoutAsync(id, user); 
+
+            return Ok(new { message = "Successfully deleted the workout." });
         }
     }
 }
