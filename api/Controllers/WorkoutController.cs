@@ -19,30 +19,24 @@ namespace FitStack.API.Controllers
     {
         private readonly AppDbContext _context;
         private readonly CurrentUserService _currentUserService;
+        private readonly IWorkoutService _workoutService;
 
-        public WorkoutController(AppDbContext context, CurrentUserService currentUserService){
+        public WorkoutController(AppDbContext context, CurrentUserService currentUserService, IWorkoutService workoutService){
             _context = context;
             _currentUserService = currentUserService;
+            _workoutService = workoutService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetWorkouts()
         {
             var (user, error) = await _currentUserService.GetAsync();
-
-            if (user == null)
+            if (user == null) 
                 return Unauthorized(error);
             
-            var workouts = await _context.Workouts
-                    .Where(w => w.UserId == user.Id)
-                    .OrderByDescending(w => w.Date)
-                    .Select(w => new WorkoutResponseDto
-                    {
-                        Id = w.Id,
-                        Name = w.Name,
-                        Date = w.Date
-                    })
-                    .ToListAsync();
+            var workouts = await _workoutService.GetWorkoutsForUserAsync(user);
+            if (workouts == null || workouts.Count == 0) 
+                return NotFound("No workouts found.");
             
             return Ok(workouts);
         }
@@ -53,27 +47,12 @@ namespace FitStack.API.Controllers
             var (user, error) = await _currentUserService.GetAsync();
             if (user == null) return Unauthorized(error);
 
-            var workout = await _context.Workouts
-                .Include(w => w.Exercises)
-                .FirstOrDefaultAsync(w => w.Id == id && w.UserId == user.Id);
+            var workout = await _workoutService.GetWorkoutByIdAsync(id, user); 
 
             if (workout == null)
                 return NotFound("Workout not found.");
 
-            return Ok(new
-            {
-                id = workout.Id,
-                name = workout.Name,
-                date = workout.Date,
-                exercises = workout.Exercises.Select(e => new
-                {
-                    id = e.Id,
-                    name = e.Name,
-                    sets = e.Sets,
-                    reps = e.Reps,
-                    weight = e.Weight
-                })
-            });
+            return Ok(workout);
         }
 
         [HttpPost]
