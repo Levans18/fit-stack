@@ -30,8 +30,12 @@ export default function Dashboard() {
         if (!res.ok) throw new Error('Failed to fetch dashboard data.');
         const json = await res.json();
         setData(json);
-      } catch (err: any) {
-        setError(err.message || 'An unexpected error occurred.');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('An unexpected error occurred.');
+        }
       } finally {
         setLoading(false);
       }
@@ -42,7 +46,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-white p-6">
-      <h1 className="text-3xl font-bold text-blue-900 mb-8">Your Dashboard</h1>
+      <h1 className="text-4xl font-bold text-blue-900 mb-8">Your Dashboard</h1>
 
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
@@ -57,7 +61,6 @@ export default function Dashboard() {
           <Card title="Total Workouts" value={data.totalWorkouts} />
           <Card title="Total Exercises" value={data.totalExercises} />
           <Card title="Weekly Streak" value={`${data.weeklyStreak} days`} />
-          <Card title="Manage My Workouts" value={data.totalVolume} />
         </motion.div>
       )}
 

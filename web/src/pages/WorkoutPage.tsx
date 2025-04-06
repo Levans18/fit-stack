@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { WorkoutResponseDto } from '@/types/WorkoutResponseDto';
+import { ArrowLeft } from 'lucide-react';
 
 export default function WorkoutPage(){
-    const [workout, setWorkout] = useState(null);
+    const [workout, setWorkout] = useState<WorkoutResponseDto | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const { workoutId } = useParams();
     const token = localStorage.getItem('token');
@@ -25,7 +28,11 @@ export default function WorkoutPage(){
                 console.log(json);
                 setWorkout(json);
             } catch (err) {
-                console.error(err);
+                if (err instanceof Error) {
+                    setError(err.message)
+                  } else {
+                    setError('Something went wrong')
+                  }
             } finally {
                 setLoading(false);
             }
@@ -35,9 +42,18 @@ export default function WorkoutPage(){
     }, [token, workoutId]);
 
     return (
-        <div className="h-screen flex items-center justify-center bg-gradient-to-br from-white via-gray-100 to-white px-4 relative">
-            <h1 className="text-2xl font-bold">Workout Page</h1>
-            <p>Workout ID: {workoutId}</p>
-        </div>
+        <div className="min-h-screen bg-gradient-to-br from-blue-100 to-white p-6">
+            <header className="flex items-start mb-8">
+                <Link to="/my-workouts" className="text-blue-600 hover:underline mt-.75">
+                    <ArrowLeft size={40} className="inline mr-1" />
+                </Link>
+                {loading && <p>Loading...</p>}
+                {error && <p className="text-red-500">{error}</p>}
+
+                {workout && <h1 className="text-4xl font-bold text-blue-900 mb-8">{workout.name}</h1>
+
+                }       
+            </header>
+      </div>
     );
 }
