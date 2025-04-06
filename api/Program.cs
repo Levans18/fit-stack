@@ -1,6 +1,7 @@
 using FitStack.API.Data;
 using FitStack.API.Services;
 using FitStack.API.Settings;
+using FitStack.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -22,6 +23,8 @@ builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CurrentUserService>();
+builder.Services.AddScoped<IWorkoutService, WorkoutService>();
+builder.Services.AddScoped<IWorkoutRepository, WorkoutRepository>();
 
 
 // Use inline config for JWT middleware (no risk of null)

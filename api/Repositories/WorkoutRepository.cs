@@ -14,7 +14,7 @@ namespace FitStack.API.Repositories
         Task DeleteAsync(int id);
     }
 
-    public class WorkoutRepository
+    public class WorkoutRepository : IWorkoutRepository
     {
         private readonly AppDbContext _context;
 
