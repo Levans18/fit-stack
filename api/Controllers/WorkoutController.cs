@@ -34,9 +34,7 @@ namespace FitStack.API.Controllers
             if (user == null) 
                 return Unauthorized(error);
             
-            var workouts = await _workoutService.GetWorkoutsForUserAsync(user);
-            if (workouts == null || workouts.Count == 0) 
-                return NotFound("No workouts found.");
+            var workouts = await _workoutService.GetWorkoutsForUserAsync(user) ?? new List<WorkoutResponseDto>();
 
             var now = DateTime.UtcNow;
             var pastWorkouts = workouts.Where(w => w.Date < now).OrderByDescending(w => w.Date).ToList();

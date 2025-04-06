@@ -24,6 +24,7 @@ export default function MyWorkoutsPage() {
     setLoading(true);
     try {
       const data = await fetchWorkouts();
+      console.log('Fetched Workouts:', data); // Debugging line
       setPastWorkouts(data.pastWorkouts);
       setUpcomingWorkouts(data.upcomingWorkouts);
     } finally {
