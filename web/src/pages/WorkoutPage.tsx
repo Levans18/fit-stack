@@ -1,40 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useWorkoutContext } from '@/hooks/useWorkoutContext';
 import { WorkoutResponseDto } from '@/types/WorkoutResponseDto';
-import { ExerciseResponseDto } from '@/types/ExerciseResponseDto';
 import { ArrowLeft } from 'lucide-react';
 import ExerciseList from '@/components/ExerciseList';
 import AddExerciseModal from '@/components/modals/AddExerciseModal';
 
 export default function WorkoutPage() {
-  const { fetchWorkoutById, addExerciseToWorkout, error } = useWorkoutContext();
+  const { fetchWorkoutById, error } = useWorkoutContext();
   const [workout, setWorkout] = useState<WorkoutResponseDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { workoutId } = useParams();
 
-  useEffect(() => {
-    const fetchWorkout = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchWorkoutById(workoutId!);
-        setWorkout(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchWorkout();
+  const fetchWorkout = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchWorkoutById(workoutId!);
+      setWorkout(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, [fetchWorkoutById, workoutId]);
 
-  const handleAddExercise = async (exercise: ExerciseResponseDto) => {
-    if (!workout) return;
+  useEffect(() => {
+    fetchWorkout();
+  }, [fetchWorkout, workoutId]);
 
+  const handleAddExercise = async () => {
     try {
-      const newExercise = await addExerciseToWorkout(workoutId!, exercise);
-      setWorkout((prev) => prev ? { ...prev, exercises: [...prev.exercises, newExercise] } : prev);
+      await fetchWorkout(); // Re-fetch the workout after adding an exercise
     } catch (err) {
       console.error(err);
     }
