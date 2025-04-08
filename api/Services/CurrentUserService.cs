@@ -23,15 +23,26 @@ namespace FitStack.API.Services
         {
             var userPrincipal = _httpContextAccessor.HttpContext?.User;
             if (userPrincipal == null)
+            {
+                Console.WriteLine("Missing authentication context.");
                 return (null, "Missing authentication context.");
+            }
 
             var sub = userPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (sub == null)
+            {
+                Console.WriteLine("Token is missing user ID.");
                 return (null, "Token is missing user ID.");
-            if (!int.TryParse(sub, out var userId))
-                return (null, "Invalid user ID format in token.");
+            }
 
+            if (!int.TryParse(sub, out var userId))
+            {
+                Console.WriteLine("Invalid user ID format in token.");
+                return (null, "Invalid user ID format in token.");
+            }
+
+            Console.WriteLine($"Extracted user ID from token: {userId}");
             return (userId, null);
         }
 

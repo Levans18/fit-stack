@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-
 import { WorkoutContext } from './WorkoutContext';
 import { WorkoutResponseDto } from '@/types/WorkoutResponseDto';
+import { ExerciseResponseDto } from '@/types/ExerciseResponseDto';
 
 export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
@@ -19,8 +19,6 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
 
       const data = await res.json();
-
-      // Ensure the response contains valid data, even if it's empty
       return {
         pastWorkouts: data.pastWorkouts || [],
         upcomingWorkouts: data.upcomingWorkouts || [],
@@ -31,7 +29,56 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
       } else {
         console.error('An unexpected error occurred.');
       }
-      throw err; // Re-throw the error for the calling component to handle
+      throw err;
+    }
+  };
+
+  const fetchWorkoutById = async (workoutId: string): Promise<WorkoutResponseDto> => {
+    try {
+      const res = await fetch(`http://localhost:5168/workouts/${workoutId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch workout.');
+      }
+
+      return await res.json();
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message || 'An unexpected error occurred.');
+      } else {
+        console.error('An unexpected error occurred.');
+      }
+      throw err;
+    }
+  };
+
+  const addExerciseToWorkout = async (workoutId: string, exercise: ExerciseResponseDto): Promise<ExerciseResponseDto> => {
+    try {
+      const res = await fetch(`http://localhost:5168/workouts/${workoutId}/exercises`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(exercise),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to add exercise.');
+      }
+
+      return await res.json();
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message || 'An unexpected error occurred.');
+      } else {
+        console.error('An unexpected error occurred.');
+      }
+      throw err;
     }
   };
 
@@ -56,7 +103,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   return (
-    <WorkoutContext.Provider value={{ fetchWorkouts, deleteWorkout, error }}>
+    <WorkoutContext.Provider value={{ fetchWorkouts, fetchWorkoutById, addExerciseToWorkout, deleteWorkout, error }}>
       {children}
     </WorkoutContext.Provider>
   );

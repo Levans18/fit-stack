@@ -30,7 +30,9 @@ namespace FitStack.API.Repositories
 
         public async Task<Workout?> GetByIdAsync(int id)
         {
-            return await _context.Workouts.FindAsync(id);
+            return await _context.Workouts
+                .Include(w => w.Exercises) // Explicitly include Exercises
+                .FirstOrDefaultAsync(w => w.Id == id);
         }
 
         public async Task AddAsync(Workout workout)

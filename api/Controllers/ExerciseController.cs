@@ -22,7 +22,7 @@ namespace FitStack.API.Controllers
             _currentUserService = currentUserService;
         }
 
-         [HttpPost]
+       [HttpPost]
         public async Task<IActionResult> CreateExercise([FromBody] CreateExerciseDto dto)
         {
             var (user, error) = await _currentUserService.GetAsync();

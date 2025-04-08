@@ -89,6 +89,52 @@ namespace FitStack.API.Controllers
             });
         }
 
+       [HttpPost("{workoutId}/exercises")]
+        public async Task<IActionResult> AddExerciseToWorkout(int workoutId, [FromBody] CreateExerciseDto dto)
+        {
+            Console.WriteLine("AddExerciseToWorkout called."); // Debugging line
+
+            var (user, error) = await _currentUserService.GetAsync();
+            if (user == null)
+            {
+                Console.WriteLine($"Unauthorized: {error}");
+                return Unauthorized(error);
+            }
+
+            Console.WriteLine($"User ID: {user.Id}");
+            var workout = await _context.Workouts
+                .Include(w => w.Exercises)
+                .FirstOrDefaultAsync(w => w.Id == workoutId && w.UserId == user.Id);
+
+            if (workout == null)
+                return NotFound("Workout not found.");
+
+            var exercise = new Exercise
+            {
+                Name = dto.Name,
+                Sets = dto.Sets,
+                Reps = dto.Reps,
+                Weight = dto.Weight,
+                WorkoutId = workoutId
+            };
+
+            _context.Exercises.Add(exercise);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Exercise added successfully",
+                exercise = new
+                {
+                    id = exercise.Id,
+                    name = exercise.Name,
+                    sets = exercise.Sets,
+                    reps = exercise.Reps,
+                    weight = exercise.Weight,
+                    workoutId = exercise.WorkoutId
+                }
+            });
+        }
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWorkout(int id)
         {

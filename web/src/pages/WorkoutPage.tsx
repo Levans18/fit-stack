@@ -1,59 +1,72 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useWorkoutContext } from '@/hooks/useWorkoutContext';
 import { WorkoutResponseDto } from '@/types/WorkoutResponseDto';
+import { ExerciseResponseDto } from '@/types/ExerciseResponseDto';
 import { ArrowLeft } from 'lucide-react';
+import ExerciseList from '@/components/ExerciseList';
+import AddExerciseModal from '@/components/modals/AddExerciseModal';
 
-export default function WorkoutPage(){
-    const [workout, setWorkout] = useState<WorkoutResponseDto | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+export default function WorkoutPage() {
+  const { fetchWorkoutById, addExerciseToWorkout, error } = useWorkoutContext();
+  const [workout, setWorkout] = useState<WorkoutResponseDto | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { workoutId } = useParams();
 
-    const { workoutId } = useParams();
-    const token = localStorage.getItem('token');
+  useEffect(() => {
+    const fetchWorkout = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchWorkoutById(workoutId!);
+        setWorkout(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchWorkout();
+  }, [fetchWorkoutById, workoutId]);
 
-    useEffect(() => {
+  const handleAddExercise = async (exercise: ExerciseResponseDto) => {
+    if (!workout) return;
 
-        const fetchWorkout = async () => {
-            setLoading(true);
-            try {
-                const res = await fetch(`http://localhost:5168/workouts/${workoutId}`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
+    try {
+      const newExercise = await addExerciseToWorkout(workoutId!, exercise);
+      setWorkout((prev) => prev ? { ...prev, exercises: [...prev.exercises, newExercise] } : prev);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-                if (!res.ok) throw new Error('Failed to fetch workout data.');
-                const json = await res.json();
-                console.log(json);
-                setWorkout(json);
-            } catch (err) {
-                if (err instanceof Error) {
-                    setError(err.message)
-                  } else {
-                    setError('Something went wrong')
-                  }
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchWorkout();
-
-    }, [token, workoutId]);
-
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-100 to-white p-6">
-            <header className="flex items-start mb-8">
-                <Link to="/my-workouts" className="text-blue-600 hover:underline mt-.75">
-                    <ArrowLeft size={40} className="inline mr-1" />
-                </Link>
-                {loading && <p>Loading...</p>}
-                {error && <p className="text-red-500">{error}</p>}
-
-                {workout && <h1 className="text-4xl font-bold text-blue-900 mb-8">{workout.name}</h1>
-
-                }       
-            </header>
-      </div>
-    );
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-white p-6">
+      <header className="flex items-start mb-8">
+        <Link to="/my-workouts" className="text-blue-600 hover:underline mt-.75">
+          <ArrowLeft size={40} className="inline mr-1" />
+        </Link>
+        {loading && <p>Loading...</p>}
+        {error && <p className="text-red-500">{error}</p>}
+        {workout && <h1 className="text-4xl font-bold text-blue-900 mb-8">{workout.name}</h1>}
+      </header>
+      {workout && (
+        <>
+          <ExerciseList exercises={workout.exercises} />
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="mt-4 bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition"
+          >
+            Add Exercise
+          </button>
+          <AddExerciseModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onExerciseAdded={handleAddExercise}
+            workoutId={workoutId!}
+          />
+        </>
+      )}
+    </div>
+  );
 }
