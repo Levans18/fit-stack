@@ -64,6 +64,7 @@ FitStack/
 
 ### 🛠️ In Progress
 - Adding Workout Creation and Tracking
+- Exercise Creation, Deletion and Editing
 - Setting up AWS (free tier) for Prod
 
 ### 🔜 Coming Soon
