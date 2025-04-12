@@ -14,7 +14,7 @@ type Workout = {
 
 export default function MyWorkoutsPage() {
   const { fetchWorkouts, deleteWorkout, error } = useWorkoutContext(); // Use context actions
-  const [pastWorkouts, setPastWorkouts] = useState<Workout[]>([]);
+  const [completedWorkouts, setCompletedWorkouts] = useState<Workout[]>([]);
   const [upcomingWorkouts, setUpcomingWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,7 +25,7 @@ export default function MyWorkoutsPage() {
     try {
       const data = await fetchWorkouts();
       console.log('Fetched Workouts:', data); // Debugging line
-      setPastWorkouts(data.pastWorkouts);
+      setCompletedWorkouts(data.completedWorkouts);
       setUpcomingWorkouts(data.upcomingWorkouts);
     } finally {
       setLoading(false);
@@ -50,7 +50,7 @@ export default function MyWorkoutsPage() {
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
-  const noWorkouts = pastWorkouts.length === 0 && upcomingWorkouts.length === 0;
+  const noWorkouts = completedWorkouts.length === 0 && upcomingWorkouts.length === 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-white p-6">
@@ -90,15 +90,15 @@ export default function MyWorkoutsPage() {
               onDelete={handleDeleteWorkout}
             />
             <WorkoutList
-              title="Past Workouts"
-              workouts={pastWorkouts}
+              title="Completed Workouts"
+              workouts={completedWorkouts}
               onDelete={handleDeleteWorkout}
             />
           </div>
           {/* Right: Calendar */}
           <div className="w-1/2 pl-4 h-full">
             <WorkoutCalendar
-              workouts={[...pastWorkouts, ...upcomingWorkouts]}
+              workouts={[...completedWorkouts, ...upcomingWorkouts]}
               onDateClick={handleDateClick}
             />
           </div>

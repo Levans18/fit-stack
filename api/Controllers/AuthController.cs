@@ -1,5 +1,4 @@
-
-using FitStack.API.DTOs;
+   using FitStack.API.DTOs;
 using FitStack.API.Data;
 using FitStack.API.Models;
 using Microsoft.AspNetCore.Identity;

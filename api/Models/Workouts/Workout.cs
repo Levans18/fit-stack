@@ -10,6 +10,8 @@ namespace FitStack.API.Models{
 
         public DateTime Date { get; set; } = DateTime.UtcNow;
 
+        public WorkoutCompletion? Completion { get; set; }
+
         public int UserId { get; set; }
         public User User { get; set; } = null!;
 

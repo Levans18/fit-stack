@@ -6,7 +6,7 @@ import { ExerciseResponseDto } from '@/types/ExerciseResponseDto';
 export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
 
-  const fetchWorkouts = async (): Promise<{ pastWorkouts: WorkoutResponseDto[]; upcomingWorkouts: WorkoutResponseDto[] }> => {
+  const fetchWorkouts = async (): Promise<{ completedWorkouts: WorkoutResponseDto[]; upcomingWorkouts: WorkoutResponseDto[] }> => {
     try {
       const res = await fetch('http://localhost:5168/workouts', {
         headers: {
@@ -20,7 +20,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       const data = await res.json();
       return {
-        pastWorkouts: data.pastWorkouts || [],
+        completedWorkouts: data.completedWorkouts || [],
         upcomingWorkouts: data.upcomingWorkouts || [],
       };
     } catch (err: unknown) {
