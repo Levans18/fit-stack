@@ -68,6 +68,8 @@ FitStack/
 - Setting up AWS (free tier) for Prod
 
 ### 🔜 Coming Soon
+- Workout/Exercise Notes
+- Customizable Reps for each set
 - Workout history timeline/calendar
 - Personal record tracking and charts
 - Responsive mobile-friendly design
