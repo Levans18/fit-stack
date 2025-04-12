@@ -64,9 +64,12 @@ FitStack/
 
 ### 🛠️ In Progress
 - Adding Workout Creation and Tracking
+- Exercise Creation, Deletion and Editing
 - Setting up AWS (free tier) for Prod
 
 ### 🔜 Coming Soon
+- Workout/Exercise Notes
+- Customizable Reps for each set
 - Workout history timeline/calendar
 - Personal record tracking and charts
 - Responsive mobile-friendly design
