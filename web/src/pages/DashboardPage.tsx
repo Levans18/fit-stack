@@ -1,8 +1,13 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 
-// Define the expected structure of the dashboard data
 interface DashboardData {
   totalWorkouts: number;
   totalExercises: number;
@@ -19,22 +24,21 @@ export default function Dashboard() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        console.log("Token:", localStorage.getItem("token"));
-        const res = await fetch('http://localhost:5168/dashboard', {
+        const res = await fetch("http://localhost:5168/dashboard", {
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
 
-        if (!res.ok) throw new Error('Failed to fetch dashboard data.');
+        if (!res.ok) throw new Error("Failed to fetch dashboard data.");
         const json = await res.json();
         setData(json);
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError('An unexpected error occurred.');
+          setError("An unexpected error occurred.");
         }
       } finally {
         setLoading(false);
@@ -52,19 +56,45 @@ export default function Dashboard() {
       {error && <p className="text-red-500">{error}</p>}
 
       {data && (
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card title="Total Workouts" value={data.totalWorkouts} />
-          <Card title="Total Exercises" value={data.totalExercises} />
-          <Card title="Weekly Streak" value={`${data.weeklyStreak} days`} />
-        </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="bg-white shadow-lg">
+            <CardHeader>
+              <CardTitle>Total Workouts</CardTitle>
+              <CardDescription>All workouts completed</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-blue-600">
+                {data.totalWorkouts}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-lg">
+            <CardHeader>
+              <CardTitle>Total Exercises</CardTitle>
+              <CardDescription>All exercises completed</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-blue-600">
+                {data.totalExercises}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-lg">
+            <CardHeader>
+              <CardTitle>Weekly Streak</CardTitle>
+              <CardDescription>Days worked out this week</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-blue-600">
+                {data.weeklyStreak} days
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
-      {/* Add the button here */}
       <div className="mt-8">
         <Link
           to="/my-workouts"
@@ -74,17 +104,5 @@ export default function Dashboard() {
         </Link>
       </div>
     </div>
-  );
-}
-
-function Card({ title, value }: { title: string; value: string | number }) {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.03 }}
-      className="bg-white rounded-xl shadow-md p-6 text-center border border-border"
-    >
-      <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
-      <p className="text-3xl font-bold text-blue-600">{value}</p>
-    </motion.div>
   );
 }
