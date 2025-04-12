@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ExerciseResponseDto } from '@/types/ExerciseResponseDto';
 import { ExerciseContext } from '@/context/ExerciseContext/ExerciseContext';
 
@@ -11,6 +11,11 @@ const ExerciseList: React.FC<ExerciseListProps> = ({ exercises: initialExercises
   const { deleteExercise, error } = useContext(ExerciseContext)!;
   const [exercises, setExercises] = useState<ExerciseResponseDto[]>(initialExercises);
   const [localError, setLocalError] = useState<string | null>(null);
+
+  // Sync local state with parent prop changes
+  useEffect(() => {
+    setExercises(initialExercises);
+  }, [initialExercises]);
 
   const handleDelete = async (exerciseId: number) => {
     try {
