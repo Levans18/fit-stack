@@ -5,6 +5,7 @@ using FitStack.API.Services;
 using FitStack.API.Controllers;
 using FitStack.API.Models;
 using FitStack.API.DTOs;
+using FitStack.API.Data;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,13 +14,13 @@ namespace FitStack.API.Tests.Controllers
     public class WorkoutControllerTests
     {
         private readonly Mock<IWorkoutService> _mockWorkoutService;
-        private readonly Mock<CurrentUserService> _mockCurrentUserService;
+        private readonly Mock<ICurrentUserService> _mockCurrentUserService;
         private readonly WorkoutController _controller;
 
         public WorkoutControllerTests()
         {
             _mockWorkoutService = new Mock<IWorkoutService>();
-            _mockCurrentUserService = new Mock<CurrentUserService>(null!, null!); // Mock CurrentUserService
+            _mockCurrentUserService = new Mock<ICurrentUserService>();
             _controller = new WorkoutController(_mockWorkoutService.Object, _mockCurrentUserService.Object);
         }
 
@@ -52,6 +53,30 @@ namespace FitStack.API.Tests.Controllers
         }
 
         [Fact]
+    public async Task GetWorkouts_ReturnsOkResult_WithEmptyList()
+    {
+        // Arrange
+        var mockUser = new User { Id = 1 };
+        var workouts = new List<WorkoutResponseDto>();
+
+        _mockCurrentUserService
+            .Setup(service => service.GetAsync())
+            .ReturnsAsync((mockUser, null));
+
+        _mockWorkoutService
+            .Setup(service => service.GetWorkoutsForUserAsync(mockUser))
+            .ReturnsAsync(workouts);
+
+        // Act
+        var result = await _controller.GetWorkouts();
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var returnValue = Assert.IsType<List<WorkoutResponseDto>>(okResult.Value);
+        Assert.Empty(returnValue);
+    }
+
+        [Fact]
         public async Task GetWorkoutById_ReturnsNotFound_WhenWorkoutDoesNotExist()
         {
             // Arrange
@@ -70,7 +95,8 @@ namespace FitStack.API.Tests.Controllers
             var result = await _controller.GetWorkoutById(workoutId);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            Assert.Equal("Workout not found.", notFoundResult.Value);
         }
 
         [Fact]
@@ -112,7 +138,7 @@ namespace FitStack.API.Tests.Controllers
 
             _mockWorkoutService
                 .Setup(service => service.CreateWorkoutAsync(createWorkoutDto, mockUser))
-                .ReturnsAsync(createdWorkout);
+                .ReturnsAsync(new Workout { Id = createdWorkout.Id, Name = createdWorkout.Name });
 
             // Act
             var result = await _controller.CreateWorkout(createWorkoutDto);
@@ -164,7 +190,8 @@ namespace FitStack.API.Tests.Controllers
             var result = await _controller.DeleteWorkout(workoutId);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            Assert.Equal("Workout not found or you do not have permission to delete it.", notFoundResult.Value);
         }
     }
 }

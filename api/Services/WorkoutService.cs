@@ -9,7 +9,7 @@ public interface IWorkoutService
     Task<List<WorkoutResponseDto>> GetWorkoutsForUserAsync(User user);
     Task<WorkoutResponseDto?> GetWorkoutByIdAsync(int id, User user);
     Task<Workout> CreateWorkoutAsync(CreateWorkoutDto dto, User user);
-    Task DeleteWorkoutAsync(int id, User user);
+    Task<bool> DeleteWorkoutAsync(int id, User user);
 }
 
 public class WorkoutService : IWorkoutService
@@ -81,12 +81,13 @@ public class WorkoutService : IWorkoutService
         return workout;
     }
 
-    public async Task DeleteWorkoutAsync(int id, User user)
+    public async Task<bool> DeleteWorkoutAsync(int id, User user)
     {
         var workout = await _workoutRepository.GetByIdAsync(id);
         if (workout == null || workout.UserId != user.Id)
-            throw new Exception("Workout not found or you do not have permission to delete it.");
+            return false;
 
         await _workoutRepository.DeleteAsync(id);
+        return true;
     }
 }

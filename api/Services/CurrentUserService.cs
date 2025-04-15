@@ -8,7 +8,13 @@ using FitStack.API.Data;
 
 namespace FitStack.API.Services
 {
-    public class CurrentUserService
+    public interface ICurrentUserService
+    {
+        (int? userId, string? error) GetUserIdFromToken();
+        Task<(User? user, string? error)> GetAsync();
+    }
+
+    public class CurrentUserService : ICurrentUserService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AppDbContext _context;
