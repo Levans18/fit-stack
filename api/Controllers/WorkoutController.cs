@@ -82,7 +82,7 @@ namespace FitStack.API.Controllers
 
                 return CreatedAtAction(nameof(GetWorkoutById), new { id = workout.Id }, workoutResponse);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // TODO: Log the error
                 return StatusCode(500, "An error occurred while creating the workout.");
