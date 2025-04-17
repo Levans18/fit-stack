@@ -9,7 +9,7 @@ using FitStack.API.Repositories;
 using Moq;
 using Xunit;
 
-namespace api.tests.Services
+namespace FitStackTests.API.Services
 {
     public class WorkoutServiceTests
     {
