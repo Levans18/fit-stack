@@ -7,21 +7,51 @@ namespace FitStack.API.Services
 {
     public interface IExerciseService
     {
-        Task<ExerciseResponseDto?> CreateExerciseAsync(CreateExerciseDto dto, User user);
         Task<ExerciseResponseDto?> GetExerciseByIdAsync(int id, User user);
         Task<IEnumerable<ExerciseResponseDto>> GetExercisesForWorkoutAsync(int workoutId, User user);
+        Task<ExerciseResponseDto?> CreateExerciseAsync(CreateExerciseDto dto, User user);
         Task<bool> DeleteExerciseAsync(int id, User user);
     }
 
     public class ExerciseService : IExerciseService
     {
-        private readonly ExerciseRepository _exerciseRepository;
-        private readonly WorkoutRepository _workoutRepository;
+        private readonly IExerciseRepository _exerciseRepository;
+        private readonly IWorkoutRepository _workoutRepository;
 
-        public ExerciseService(ExerciseRepository exerciseRepository, WorkoutRepository workoutRepository)
+        public ExerciseService(IExerciseRepository exerciseRepository, IWorkoutRepository workoutRepository)
         {
             _exerciseRepository = exerciseRepository;
             _workoutRepository = workoutRepository;
+        }
+
+        public async Task<ExerciseResponseDto?> GetExerciseByIdAsync(int id, User user)
+        {
+            var exercise = await _exerciseRepository.GetExerciseByIdAsync(id);
+
+            return new ExerciseResponseDto
+            {
+                Id = exercise.Id,
+                Name = exercise.Name,
+                Sets = exercise.Sets,
+                Reps = exercise.Reps,
+                Weight = exercise.Weight,
+                WorkoutId = exercise.WorkoutId
+            };
+        }
+
+        public async Task<IEnumerable<ExerciseResponseDto>> GetExercisesForWorkoutAsync(int workoutId, User user)
+        {
+            var exercises = await _exerciseRepository.GetExercisesByWorkoutIdAsync(workoutId);
+
+            return exercises.Select(e => new ExerciseResponseDto
+            {
+                Id = e.Id,
+                Name = e.Name,
+                Sets = e.Sets,
+                Reps = e.Reps,
+                Weight = e.Weight,
+                WorkoutId = e.WorkoutId
+            });
         }
 
         public async Task<ExerciseResponseDto?> CreateExerciseAsync(CreateExerciseDto dto, User user)
@@ -54,37 +84,6 @@ namespace FitStack.API.Services
                 Weight = exercise.Weight,
                 WorkoutId = exercise.WorkoutId
             };
-        }
-
-        public async Task<ExerciseResponseDto?> GetExerciseByIdAsync(int id, User user)
-        {
-            var exercise = await _exerciseRepository.GetExerciseByIdAsync(id);
-            if (exercise == null) return null;
-
-            return new ExerciseResponseDto
-            {
-                Id = exercise.Id,
-                Name = exercise.Name,
-                Sets = exercise.Sets,
-                Reps = exercise.Reps,
-                Weight = exercise.Weight,
-                WorkoutId = exercise.WorkoutId
-            };
-        }
-
-        public async Task<IEnumerable<ExerciseResponseDto>> GetExercisesForWorkoutAsync(int workoutId, User user)
-        {
-            var exercises = await _exerciseRepository.GetExercisesByWorkoutIdAsync(workoutId);
-
-            return exercises.Select(e => new ExerciseResponseDto
-            {
-                Id = e.Id,
-                Name = e.Name,
-                Sets = e.Sets,
-                Reps = e.Reps,
-                Weight = e.Weight,
-                WorkoutId = e.WorkoutId
-            });
         }
 
         public async Task<bool> DeleteExerciseAsync(int id, User user)

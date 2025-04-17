@@ -9,6 +9,7 @@ namespace FitStack.Repositories
     public interface IExerciseRepository
     {
         Task<IEnumerable<Exercise>> GetAllExercisesAsync();
+        Task<IEnumerable<Exercise>> GetExercisesByWorkoutIdAsync(int workoutId);
         Task<Exercise> GetExerciseByIdAsync(int id);
         Task AddExerciseAsync(Exercise exercise);
         Task UpdateExerciseAsync(Exercise exercise);
@@ -40,9 +41,8 @@ namespace FitStack.Repositories
         {
             var exercise = await _context.Exercises.FindAsync(id);
             if (exercise == null)
-            {
                 throw new KeyNotFoundException($"Exercise with ID {id} was not found.");
-            }
+            
             return exercise;
         }
 

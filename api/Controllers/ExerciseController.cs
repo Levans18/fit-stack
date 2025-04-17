@@ -13,76 +13,80 @@ namespace FitStack.API.Controllers
     [Authorize]
     public class ExerciseController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly CurrentUserService _currentUserService;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly IExerciseService _exerciseService;
 
-        public ExerciseController(AppDbContext context, CurrentUserService currentUserService)
+        public ExerciseController(AppDbContext context, CurrentUserService currentUserService, IExerciseService exerciseService)
         {
-            _context = context;
+            _exerciseService = exerciseService;
             _currentUserService = currentUserService;
         }
 
        [HttpPost]
         public async Task<IActionResult> CreateExercise([FromBody] CreateExerciseDto dto)
         {
-            var (user, error) = await _currentUserService.GetAsync();
-            if (user == null) return Unauthorized(error);
-
-            var workout = await _context.Workouts
-                .Include(w => w.Exercises)
-                .FirstOrDefaultAsync(w => w.Id == dto.WorkoutId && w.UserId == user.Id);
-
-            if (workout == null)
-                return NotFound("Workout not found.");
-
-            var exercise = new Exercise
+            try
             {
-                Name = dto.Name,
-                Sets = dto.Sets,
-                Reps = dto.Reps,
-                Weight = dto.Weight,
-                WorkoutId = dto.WorkoutId
-            };
+                // Validate the DTO
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            _context.Exercises.Add(exercise);
-            await _context.SaveChangesAsync();
+                var (user, error) = await _currentUserService.GetAsync();
+                if (user == null) return Unauthorized(error);
 
-            return Ok(new
-            {
-                message = "Exercise added successfully",
-                exercise = new
+                var workout = await _exerciseService.CreateExerciseAsync(dto, user);
+                
+                if (workout == null)
+                    return NotFound("Workout not found.");
+
+                var exercise = new Exercise
                 {
-                    id = exercise.Id,
-                    name = exercise.Name,
-                    sets = exercise.Sets,
-                    reps = exercise.Reps,
-                    weight = exercise.Weight,
-                    workoutId = exercise.WorkoutId
-                }
-            });
+                    Name = dto.Name,
+                    Sets = dto.Sets,
+                    Reps = dto.Reps,
+                    Weight = dto.Weight,
+                    WorkoutId = dto.WorkoutId
+                };
+
+                _context.Exercises.Add(exercise);
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    message = "Exercise added successfully",
+                    exercise = new
+                    {
+                        id = exercise.Id,
+                        name = exercise.Name,
+                        sets = exercise.Sets,
+                        reps = exercise.Reps,
+                        weight = exercise.Weight,
+                        workoutId = exercise.WorkoutId
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
          [HttpGet("{exerciseId}")]
         public async Task<IActionResult> GetExerciseById(int exerciseId)
         {   
-            var (user, error) = await _currentUserService.GetAsync();
-            if (user == null) return Unauthorized(error);
-
-            var exercise = await _context.Exercises
-                .FirstOrDefaultAsync(e => e.Id == exerciseId && e.Workout.UserId == user.Id);
-
-            if (exercise == null)
-                return NotFound("Exercise not found.");
-
-            return Ok(new
+            try
             {
-                id = exercise.Id,
-                name = exercise.Name,
-                sets = exercise.Sets,
-                reps = exercise.Reps,
-                weight = exercise.Weight,
-                workoutId = exercise.WorkoutId,
-            });
+                var (user, error) = await _currentUserService.GetAsync();
+                if (user == null)
+                    return Unauthorized(error);
+
+                var exercise = await _exerciseService.GetExerciseByIdAsync(exerciseId, user);
+                return Ok(exercise);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPut("{exerciseId}")]
