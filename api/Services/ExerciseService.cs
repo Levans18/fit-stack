@@ -10,6 +10,7 @@ namespace FitStack.API.Services
         Task<ExerciseResponseDto?> GetExerciseByIdAsync(int id, User user);
         Task<IEnumerable<ExerciseResponseDto>> GetExercisesForWorkoutAsync(int workoutId, User user);
         Task<ExerciseResponseDto?> CreateExerciseAsync(CreateExerciseDto dto, User user);
+        
         Task<bool> DeleteExerciseAsync(int id, User user);
     }
 
