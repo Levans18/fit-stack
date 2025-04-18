@@ -35,7 +35,7 @@ public class WorkoutService : IWorkoutService
             Id = w.Id,
             Name = w.Name,
             Date = w.Date,
-            Exercises = w.Exercises.Select(e => new ExerciseResponseDto
+            Exercises = w.Exercises.Select(e => new ExerciseDto
             {
                 Id = e.Id,
                 Name = e.Name,
@@ -57,7 +57,7 @@ public class WorkoutService : IWorkoutService
             Id = workout.Id,
             Name = workout.Name,
             Date = workout.Date,
-            Exercises = workout.Exercises.Select(e => new ExerciseResponseDto
+            Exercises = workout.Exercises.Select(e => new ExerciseDto
             {
                 Id = e.Id,
                 Name = e.Name,

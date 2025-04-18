@@ -23,7 +23,7 @@ namespace FitStack.API.Controllers
         }
 
        [HttpPost]
-        public async Task<IActionResult> CreateExercise([FromBody] CreateExerciseDto dto)
+        public async Task<IActionResult> CreateExercise([FromBody] ExerciseDto dto)
         {
             try
             {
@@ -63,10 +63,14 @@ namespace FitStack.API.Controllers
             {
                 return NotFound(ex.Message);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message); // Return 403 Forbidden
+            }
         }
 
         [HttpPut("{exerciseId}")]
-        public async Task<IActionResult> UpdateExercise(int exerciseId, [FromBody] CreateExerciseDto dto)
+        public async Task<IActionResult> UpdateExercise(int exerciseId, [FromBody] ExerciseDto dto)
         {
             try
             {
@@ -78,9 +82,6 @@ namespace FitStack.API.Controllers
                 if (user == null) return Unauthorized(error);
 
                 var exercise = await _exerciseService.UpdateExerciseAsync(exerciseId, dto, user);
-                
-                if (exercise == null)
-                    return NotFound("Exercise not found.");
 
                 return Ok(exercise);
             }
@@ -88,25 +89,31 @@ namespace FitStack.API.Controllers
             {
                 return NotFound(ex.Message);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message); // Return 403 Forbidden
+            }
         }
 
         [HttpDelete("{exerciseId}")]
         public async Task<IActionResult> DeleteExercise(int exerciseId)
         {
-            var (user, error) = await _currentUserService.GetAsync();
-            if (user == null) return Unauthorized(error);
+            try{
+                // Validate the DTO
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            var exercise = await _context.Exercises
-                .Include(e => e.Workout)
-                .FirstOrDefaultAsync(e => e.Id == exerciseId && e.Workout.UserId == user.Id);
+                var (user, error) = await _currentUserService.GetAsync();
+                if (user == null) return Unauthorized(error);
 
-            if (exercise == null)
-                return NotFound("Exercise not found.");
+                var exercise = await _exerciseService.DeleteExerciseAsync(exerciseId, user);
 
-            _context.Exercises.Remove(exercise);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Exercise deleted successfully." });
+                return Ok(new { message = "Exercise deleted successfully." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
 }

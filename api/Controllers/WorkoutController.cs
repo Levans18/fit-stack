@@ -70,13 +70,14 @@ namespace FitStack.API.Controllers
                     Id = workout.Id,
                     Name = workout.Name,
                     Date = workout.Date,
-                    Exercises = workout.Exercises.Select(e => new ExerciseResponseDto
+                    Exercises = workout.Exercises.Select(e => new ExerciseDto
                     {
                         Id = e.Id,
                         Name = e.Name,
                         Sets = e.Sets,
                         Reps = e.Reps,
-                        Weight = e.Weight
+                        Weight = e.Weight,
+                        WorkoutId = e.WorkoutId
                     }).ToList()
                 };
 

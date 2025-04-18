@@ -6,6 +6,6 @@ namespace FitStack.API.DTOs
         public int Id { get; set; }
         public string Name {get; set; } = null!;
         public DateTime Date { get; set; }
-        public List<ExerciseResponseDto> Exercises { get; set; } = new List<ExerciseResponseDto>();
+        public List<ExerciseDto> Exercises { get; set; } = new List<ExerciseDto>();
     }
 }

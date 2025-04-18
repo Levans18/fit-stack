@@ -9,7 +9,7 @@ namespace FitStack.API.Repositories
     public interface IWorkoutRepository
     {
         Task<List<Workout>> GetAllAsync();
-        Task<Workout?> GetByIdAsync(int id);
+        Task<Workout> GetByIdAsync(int id);
         Task AddAsync(Workout workout);
         Task DeleteAsync(int id);
     }
@@ -28,11 +28,16 @@ namespace FitStack.API.Repositories
             return await _context.Workouts.ToListAsync();
         }
 
-        public async Task<Workout?> GetByIdAsync(int id)
+        public async Task<Workout> GetByIdAsync(int id)
         {
-            return await _context.Workouts
+            var workout = await _context.Workouts
                 .Include(w => w.Exercises) // Explicitly include Exercises
                 .FirstOrDefaultAsync(w => w.Id == id);
+
+            if (workout == null)
+                throw new KeyNotFoundException($"Workout with ID {id} was not found.");
+
+            return workout;
         }
 
         public async Task AddAsync(Workout workout)
