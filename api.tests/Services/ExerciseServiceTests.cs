@@ -21,7 +21,7 @@ namespace FitStackTests.API.Services {
             _exerciseService = new ExerciseService(_exerciseRepositoryMock.Object, _workoutRepositoryMock.Object);
         }
 
-        [Fact]
+       [Fact]
         public async Task GetExerciseByIdAsync_ShouldReturnExercise_WhenExerciseExists()
         {
             // Arrange
@@ -35,13 +35,20 @@ namespace FitStackTests.API.Services {
                 Weight = 100,
                 WorkoutId = 1
             };
+            var mockWorkout = new Workout
+            {
+                Id = 1,
+                UserId = mockUser.Id // User owns the workout
+            };
 
+
+            _workoutRepositoryMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(mockWorkout);
             _exerciseRepositoryMock.Setup(repo => repo.GetExerciseByIdAsync(1)).ReturnsAsync(mockExercise);
 
             // Act
             var result = await _exerciseService.GetExerciseByIdAsync(1, mockUser);
 
-            //Assert
+            // Assert
             Assert.NotNull(result);
             Assert.IsType<ExerciseDto>(result);
             Assert.Equal(mockExercise.Id, result.Id);
@@ -66,30 +73,30 @@ namespace FitStackTests.API.Services {
             await Assert.ThrowsAsync<KeyNotFoundException>(() => _exerciseService.GetExerciseByIdAsync(1, mockUser));
         }
 
-        // [Fact]
-        // public async Task GetExerciseByIdAsync_ShouldThrowUnauthorizedAccessException_WhenUserDoesNotOwnWorkout()
-        // {
-        //     // Arrange
-        //     var mockUser = new User { Id = 1 }; // User making the request
-        //    _exerciseRepositoryMock.Setup(repo => repo.GetExerciseByIdAsync(1)).ReturnsAsync(new Exercise
-        //     {
-        //         Id = 1,
-        //         Name = "Exercise A",
-        //         Sets = 3,
-        //         Reps = 10,
-        //         Weight = 100,
-        //         WorkoutId = 1
-        //     });
+        [Fact]
+        public async Task GetExerciseByIdAsync_ShouldThrowUnauthorizedAccessException_WhenUserDoesNotOwnWorkout()
+        {
+            // Arrange
+            var mockUser = new User { Id = 1 }; // User making the request
+           _exerciseRepositoryMock.Setup(repo => repo.GetExerciseByIdAsync(1)).ReturnsAsync(new Exercise
+            {
+                Id = 1,
+                Name = "Exercise A",
+                Sets = 3,
+                Reps = 10,
+                Weight = 100,
+                WorkoutId = 1
+            });
 
-        //     _workoutRepositoryMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(new Workout
-        //     {
-        //         Id = 1,
-        //         UserId = 2 // Different user to trigger UnauthorizedAccessException
-        //     });
-        //     // Act & Assert
-        //     var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _exerciseService.GetExerciseByIdAsync(1, mockUser));
-        //     Assert.Equal("You do not have permission to access this exercise.", exception.Message);
-        // }
+            _workoutRepositoryMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(new Workout
+            {
+                Id = 1,
+                UserId = 2 // Different user to trigger UnauthorizedAccessException
+            });
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _exerciseService.GetExerciseByIdAsync(1, mockUser));
+            Assert.Equal("You do not have permission to access this exercise.", exception.Message);
+        }
 
         [Fact]
         public async Task UpdateExerciseAsync_ShouldUpdateExercise_WhenValid()
