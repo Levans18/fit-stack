@@ -1,5 +1,5 @@
 
-export interface ExerciseResponseDto {
+export interface ExerciseDto {
     id: number;
     name: string;
     sets: number;
