@@ -1,9 +1,9 @@
 import { createContext } from 'react';
-import { ExerciseResponseDto } from '@/types/ExerciseResponseDto';
+import { ExerciseDto } from '@/types/ExerciseDto';
 
 interface ExerciseContextProps {
-  fetchExercises: (workoutId: string) => Promise<ExerciseResponseDto[]>;
-  addExercise: (workoutId: string, exercise: ExerciseResponseDto) => Promise<ExerciseResponseDto>;
+  fetchExercises: (workoutId: string) => Promise<ExerciseDto[]>;
+  addExercise: (workoutId: string, exercise: ExerciseDto) => Promise<ExerciseDto>;
   deleteExercise: (exerciseId: number) => Promise<void>;
   error: string | null;
 }

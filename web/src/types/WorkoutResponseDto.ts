@@ -1,4 +1,4 @@
-import { ExerciseDto } from './ExerciseResponseDto';
+import { ExerciseDto } from './ExerciseDto';
 
 export interface WorkoutResponseDto {
     id: number;

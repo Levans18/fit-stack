@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { ExerciseContext } from './ExerciseContext';
-import { ExerciseResponseDto } from '@/types/ExerciseResponseDto';
+import { ExerciseDto } from '@/types/ExerciseDto';
 
 export const ExerciseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
 
-  const fetchExercises = async (workoutId: string): Promise<ExerciseResponseDto[]> => {
+  const fetchExercises = async (workoutId: string): Promise<ExerciseDto[]> => {
     try {
       const res = await fetch(`http://localhost:5168/workouts/${workoutId}/exercises`, {
         headers: {
@@ -28,7 +28,7 @@ export const ExerciseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  const addExercise = async (workoutId: string, exercise: ExerciseResponseDto): Promise<ExerciseResponseDto> => {
+  const addExercise = async (workoutId: string, exercise: ExerciseDto): Promise<ExerciseDto> => {
     try {
       const res = await fetch(`http://localhost:5168/workouts/${workoutId}/exercises`, {
         method: 'POST',

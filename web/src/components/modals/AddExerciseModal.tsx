@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { ExerciseResponseDto } from '@/types/ExerciseResponseDto';
+import { ExerciseDto } from '@/types/ExerciseDto';
 
 interface AddExerciseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onExerciseAdded: (exercise: ExerciseResponseDto) => void;
+  onExerciseAdded: (exercise: ExerciseDto) => void;
   workoutId: string;
 }
 

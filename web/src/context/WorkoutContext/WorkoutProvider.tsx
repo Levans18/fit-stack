@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { WorkoutContext } from './WorkoutContext';
 import { WorkoutResponseDto } from '@/types/WorkoutResponseDto';
-import { ExerciseResponseDto } from '@/types/ExerciseResponseDto';
+import { ExerciseDto } from '@/types/ExerciseDto';
 
 export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +56,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  const addExerciseToWorkout = async (workoutId: string, exercise: ExerciseResponseDto): Promise<ExerciseResponseDto> => {
+  const addExerciseToWorkout = async (workoutId: string, exercise: ExerciseDto): Promise<ExerciseDto> => {
     try {
       const res = await fetch(`http://localhost:5168/workouts/${workoutId}/exercises`, {
         method: 'POST',

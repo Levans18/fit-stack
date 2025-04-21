@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ExerciseResponseDto } from '@/types/ExerciseResponseDto';
+import { ExerciseResponseDto } from '@/types/ExerciseDto';
 
 interface ExerciseFormProps {
   workoutId: string;

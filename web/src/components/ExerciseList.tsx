@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ExerciseResponseDto } from '@/types/ExerciseResponseDto';
+import { ExerciseResponseDto } from '@/types/ExerciseDto';
 import { ExerciseContext } from '@/context/ExerciseContext/ExerciseContext';
 
 interface ExerciseListProps {
