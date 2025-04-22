@@ -12,6 +12,9 @@ namespace FitStack.API.Repositories
         Task<Workout> GetByIdAsync(int id);
         Task AddAsync(Workout workout);
         Task DeleteAsync(int id);
+        Task<WorkoutCompletion?> GetWorkoutCompletionByWorkoutIdAsync(int workoutId);
+        Task AddWorkoutCompletionAsync(WorkoutCompletion workoutCompletion);
+        Task UpdateWorkoutCompletionAsync(WorkoutCompletion workoutCompletion);
     }
 
     public class WorkoutRepository : IWorkoutRepository
@@ -54,6 +57,27 @@ namespace FitStack.API.Repositories
                 _context.Workouts.Remove(workout);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        /*Workout Completion Handling*/
+        public async Task<WorkoutCompletion?> GetWorkoutCompletionByWorkoutIdAsync(int workoutId)
+        {
+            return await _context.WorkoutCompletions
+                .Include(wc => wc.CompletedExercises)
+                .ThenInclude(ce => ce.CompletedSets)
+                .FirstOrDefaultAsync(wc => wc.WorkoutId == workoutId);
+        }
+
+        public async Task AddWorkoutCompletionAsync(WorkoutCompletion workoutCompletion)
+        {
+            await _context.WorkoutCompletions.AddAsync(workoutCompletion);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateWorkoutCompletionAsync(WorkoutCompletion workoutCompletion)
+        {
+            _context.WorkoutCompletions.Update(workoutCompletion);
+            await _context.SaveChangesAsync();
         }
     }
 }

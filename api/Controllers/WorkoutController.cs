@@ -90,6 +90,47 @@ namespace FitStack.API.Controllers
             }
         }
 
+        [HttpPost("{id}/completion")]
+        public async Task<IActionResult> AddWorkoutCompletion(int id, [FromBody] WorkoutCompletionDto dto)
+        {
+            var (user, error) = await _currentUserService.GetAsync();
+            if (user == null) return Unauthorized(error);
+
+            try
+            {
+                var workoutCompletion = await _workoutService.AddWorkoutCompletionAsync(dto, user);
+                return Ok(workoutCompletion);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{id}/completion")]
+        public async Task<IActionResult> GetWorkoutCompletion(int id)
+        {
+            var (user, error) = await _currentUserService.GetAsync();
+            if (user == null) return Unauthorized(error);
+
+            try
+            {
+                var workoutCompletion = await _workoutService.GetWorkoutCompletionByWorkoutIdAsync(id, user);
+                if (workoutCompletion == null)
+                    return NotFound("Workout completion not found.");
+
+                return Ok(workoutCompletion);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWorkout(int id)
         {

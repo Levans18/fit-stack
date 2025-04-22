@@ -46,8 +46,29 @@ namespace FitStack.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        
+        [HttpPost("{exerciseId}/complete")]
+        public async Task<IActionResult> CompleteExercise(int exerciseId)
+        {
+            try
+            {
+                var (user, error) = await _currentUserService.GetAsync();
+                if (user == null) return Unauthorized(error);
 
-         [HttpGet("{exerciseId}")]
+                var exercise = await _exerciseService.CompleteExerciseAsync(exerciseId, user);
+                return Ok(exercise);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message); // Return 403 Forbidden
+            }
+        }
+
+        [HttpGet("{exerciseId}")]
         public async Task<IActionResult> GetExerciseById(int exerciseId)
         {   
             try

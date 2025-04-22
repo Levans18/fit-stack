@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { ExerciseResponseDto } from '@/types/ExerciseDto';
+import { ExerciseDto } from '@/types/ExerciseDto';
 
 interface ExerciseFormProps {
   workoutId: string;
-  onExerciseAdded: (exercise: ExerciseResponseDto) => void;
+  onExerciseAdded: (exercise: ExerciseDto) => void;
 }
 
 const ExerciseForm: React.FC<ExerciseFormProps> = ({ workoutId, onExerciseAdded }) => {

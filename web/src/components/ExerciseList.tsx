@@ -1,15 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ExerciseResponseDto } from '@/types/ExerciseDto';
+import { ExerciseDto } from '@/types/ExerciseDto';
 import { ExerciseContext } from '@/context/ExerciseContext/ExerciseContext';
 
 interface ExerciseListProps {
-  exercises: ExerciseResponseDto[];
+  exercises: ExerciseDto[];
   onExerciseDeleted?: (exerciseId: number) => void; // Optional callback for parent updates
 }
 
 const ExerciseList: React.FC<ExerciseListProps> = ({ exercises: initialExercises, onExerciseDeleted }) => {
   const { deleteExercise, error } = useContext(ExerciseContext)!;
-  const [exercises, setExercises] = useState<ExerciseResponseDto[]>(initialExercises);
+  const [exercises, setExercises] = useState<ExerciseDto[]>(initialExercises);
   const [localError, setLocalError] = useState<string | null>(null);
 
   // Sync local state with parent prop changes
