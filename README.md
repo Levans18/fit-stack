@@ -61,16 +61,16 @@ FitStack/
 - Creating workout tracking models and API endpoints
 - Connecting React frontend to the backend API
 - Basic frontend pages (Login, Register, Dashboard)
+- Workout history timeline/calendar
+- Adding Workout Creation and Tracking
 
 ### 🛠️ In Progress
-- Adding Workout Creation and Tracking
 - Exercise Creation, Deletion and Editing
 - Setting up AWS (free tier) for Prod
-
-### 🔜 Coming Soon
 - Workout/Exercise Notes
 - Customizable Reps for each set
-- Workout history timeline/calendar
+
+### 🔜 Coming Soon
 - Personal record tracking and charts
 - Responsive mobile-friendly design
 - Native mobile app using .NET MAUI
