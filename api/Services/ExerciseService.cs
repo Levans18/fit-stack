@@ -1,7 +1,6 @@
 using FitStack.API.DTOs;
 using FitStack.API.Models;
 using FitStack.API.Repositories;
-using FitStack.Repositories;
 
 namespace FitStack.API.Services
 {
@@ -11,6 +10,7 @@ namespace FitStack.API.Services
         Task<IEnumerable<ExerciseDto>> GetExercisesForWorkoutAsync(int workoutId, User user);
         Task<ExerciseDto> CreateExerciseAsync(ExerciseDto dto, User user);
         Task<ExerciseDto> UpdateExerciseAsync(int id, ExerciseDto dto, User user);
+        Task<CompletedExerciseDto> CompleteExerciseAsync(int id, User user);
         Task<bool> DeleteExerciseAsync(int id, User user);
     }
 
@@ -86,6 +86,53 @@ namespace FitStack.API.Services
                 Reps = exercise.Reps,
                 Weight = exercise.Weight,
                 WorkoutId = exercise.WorkoutId
+            };
+        }
+
+        public async Task<CompletedExerciseDto> CompleteExerciseAsync(int exerciseId, User user)
+{
+            // Step 1: Retrieve the exercise
+            var exercise = await _exerciseRepository.GetExerciseByIdAsync(exerciseId);
+            if (exercise == null || exercise.Workout.UserId != user.Id)
+                throw new UnauthorizedAccessException("You do not have permission to complete this exercise.");
+
+            // Step 2: Check if the workout is completed
+            if (exercise.Workout.Completion == null)
+            {
+                // Automatically complete the workout
+                exercise.Workout.Completion = new WorkoutCompletion
+                {
+                    WorkoutId = exercise.Workout.Id,
+                    CompletedAt = DateTime.UtcNow,
+                    Notes = "Automatically completed when completing an exercise."
+                };
+                await _workoutRepository.UpdateAsync(exercise.Workout);
+            }
+
+            // Step 3: Mark the exercise as completed
+            var completedExercise = new CompletedExercise
+            {
+                Name = exercise.Name,
+                Notes = "Completed",
+                WorkoutCompletionId = exercise.Workout.Completion.Id,
+                CompletedSets = exercise.sets.Select(set => new CompletedSet
+                {
+                    Reps = set.Reps,
+                    Weight = set.Weight
+                }).ToList()
+            };
+
+            await _exerciseRepository.AddCompletedExerciseAsync(completedExercise);
+            return new CompletedExerciseDto
+            {
+                Name = completedExercise.Name,
+                Notes = completedExercise.Notes,
+                WorkoutCompletionId = completedExercise.WorkoutCompletionId,
+                CompletedSets = completedExercise.CompletedSets.Select(set => new CompletedSetDto
+                {
+                    Reps = set.Reps,
+                    Weight = set.Weight
+                }).ToList()
             };
         }
 

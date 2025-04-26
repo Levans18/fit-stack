@@ -1,14 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { CompletedWorkoutDto } from '@/types/CompletedWorkoutDto';
+import AddExerciseModal from '@/components/modals/AddExerciseModal';
 import { useWorkoutContext } from '@/hooks/useWorkoutContext';
 import { WorkoutResponseDto } from '@/types/WorkoutResponseDto';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import ExerciseList from '@/components/ExerciseList';
-import AddExerciseModal from '@/components/modals/AddExerciseModal';
 
 export default function WorkoutPage() {
   const { fetchWorkoutById, error } = useWorkoutContext();
   const [workout, setWorkout] = useState<WorkoutResponseDto | null>(null);
+  const [completedWorkout, setCompletedWorkout] = useState<CompletedWorkoutDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { workoutId } = useParams();
@@ -18,6 +20,13 @@ export default function WorkoutPage() {
     try {
       const data = await fetchWorkoutById(workoutId!);
       setWorkout(data);
+
+      // Check if the workout is completed and set the completedWorkout state
+      if ('completedExercises' in data) {
+        if ('workoutId' in data && 'completedAt' in data) {
+          setCompletedWorkout(data as CompletedWorkoutDto);
+        }
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -49,7 +58,10 @@ export default function WorkoutPage() {
       </header>
       {workout && (
         <>
-          <ExerciseList exercises={workout.exercises} />
+          <ExerciseList
+            exercises={workout.exercises}
+            completedExercises={completedWorkout?.completedExercises || []}
+          />
           <button
             onClick={() => setIsModalOpen(true)}
             className="mt-4 bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition"

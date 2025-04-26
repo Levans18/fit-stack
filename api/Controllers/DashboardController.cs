@@ -12,9 +12,9 @@ using Microsoft.AspNetCore.Authorization;
 public class DashboardController : ControllerBase
 {
     private readonly AppDbContext _context;
-    private readonly CurrentUserService _currentUserService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public DashboardController(AppDbContext context, CurrentUserService currentUserService)
+    public DashboardController(AppDbContext context, ICurrentUserService currentUserService)
     {
         _context = context;
         _currentUserService = currentUserService;

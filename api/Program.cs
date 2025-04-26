@@ -22,9 +22,11 @@ builder.Services.Configure<JwtOptions>(jwtSection);
 builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<CurrentUserService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IWorkoutService, WorkoutService>();
 builder.Services.AddScoped<IWorkoutRepository, WorkoutRepository>();
+builder.Services.AddScoped<IExerciseService, ExerciseService>();
+builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
 
 
 // Use inline config for JWT middleware (no risk of null)

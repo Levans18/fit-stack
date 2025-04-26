@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using FitStack.API.Models;
 using FitStack.API.Data;
 
-namespace FitStack.Repositories
+namespace FitStack.API.Repositories
 {
     public interface IExerciseRepository
     {
@@ -12,6 +12,7 @@ namespace FitStack.Repositories
         Task<IEnumerable<Exercise>> GetExercisesByWorkoutIdAsync(int workoutId);
         Task<Exercise> GetExerciseByIdAsync(int id);
         Task AddExerciseAsync(Exercise exercise);
+        Task AddCompletedExerciseAsync(CompletedExercise completedExercise);
         Task UpdateExerciseAsync(Exercise exercise);
         Task DeleteExerciseAsync(int id);
     }
@@ -66,6 +67,12 @@ namespace FitStack.Repositories
                 _context.Exercises.Remove(exercise);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task AddCompletedExerciseAsync(CompletedExercise completedExercise)
+        {
+            await _context.CompletedExercises.AddAsync(completedExercise);
+            await _context.SaveChangesAsync();
         }
     }
 }

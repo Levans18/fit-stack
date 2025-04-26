@@ -15,5 +15,7 @@ namespace FitStack.API.Models{
 
         public int WorkoutId { get; set; }
         public Workout Workout { get; set; } = null!;
+
+        public ICollection<Set> sets { get; set; } = new List<Set>(); // Added property
     }
 }

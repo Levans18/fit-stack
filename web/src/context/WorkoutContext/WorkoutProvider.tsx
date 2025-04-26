@@ -13,22 +13,25 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
-
+  
       if (!res.ok) {
         throw new Error('Failed to fetch workouts.');
       }
-
-      const data = await res.json();
+  
+      const data: WorkoutResponseDto[] = await res.json(); // The response is an array of workouts
+      console.log('API Response:', data); // Debugging line
+  
+      // Separate workouts into completed and upcoming based on the current date
+      const now = new Date();
+      const completedWorkouts = data.filter(workout => new Date(workout.date) < now);
+      const upcomingWorkouts = data.filter(workout => new Date(workout.date) >= now);
+  
       return {
-        completedWorkouts: data.completedWorkouts || [],
-        upcomingWorkouts: data.upcomingWorkouts || [],
+        completedWorkouts,
+        upcomingWorkouts,
       };
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error(err.message || 'An unexpected error occurred.');
-      } else {
-        console.error('An unexpected error occurred.');
-      }
+    } catch (err) {
+      console.error('Error fetching workouts:', err);
       throw err;
     }
   };

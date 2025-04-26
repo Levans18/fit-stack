@@ -16,7 +16,7 @@ namespace FitStack.API.Controllers
         private readonly ICurrentUserService _currentUserService;
         private readonly IExerciseService _exerciseService;
 
-        public ExerciseController(AppDbContext context, CurrentUserService currentUserService, IExerciseService exerciseService)
+        public ExerciseController(ICurrentUserService currentUserService, IExerciseService exerciseService)
         {
             _exerciseService = exerciseService;
             _currentUserService = currentUserService;
@@ -47,7 +47,7 @@ namespace FitStack.API.Controllers
             }
         }
         
-        [HttpPost("{exerciseId}/complete")]
+       [HttpPost("{exerciseId}/complete")]
         public async Task<IActionResult> CompleteExercise(int exerciseId)
         {
             try
@@ -55,8 +55,8 @@ namespace FitStack.API.Controllers
                 var (user, error) = await _currentUserService.GetAsync();
                 if (user == null) return Unauthorized(error);
 
-                var exercise = await _exerciseService.CompleteExerciseAsync(exerciseId, user);
-                return Ok(exercise);
+                var completedExercise = await _exerciseService.CompleteExerciseAsync(exerciseId, user);
+                return Ok(completedExercise);
             }
             catch (KeyNotFoundException ex)
             {
@@ -64,7 +64,7 @@ namespace FitStack.API.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Forbid(ex.Message); // Return 403 Forbidden
+                return Forbid(ex.Message);
             }
         }
 

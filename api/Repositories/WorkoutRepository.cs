@@ -11,6 +11,7 @@ namespace FitStack.API.Repositories
         Task<List<Workout>> GetAllAsync();
         Task<Workout> GetByIdAsync(int id);
         Task AddAsync(Workout workout);
+        Task<Workout> UpdateAsync(Workout workout);
         Task DeleteAsync(int id);
         Task<WorkoutCompletion?> GetWorkoutCompletionByWorkoutIdAsync(int workoutId);
         Task AddWorkoutCompletionAsync(WorkoutCompletion workoutCompletion);
@@ -28,13 +29,21 @@ namespace FitStack.API.Repositories
 
         public async Task<List<Workout>> GetAllAsync()
         {
-            return await _context.Workouts.ToListAsync();
+            return await _context.Workouts
+                .Include(w => w.Exercises)
+                .Include(w => w.Completion)
+                    .ThenInclude(c => c.CompletedExercises)
+                    .ThenInclude(ce => ce.CompletedSets)
+                .ToListAsync();
         }
 
         public async Task<Workout> GetByIdAsync(int id)
         {
             var workout = await _context.Workouts
                 .Include(w => w.Exercises) // Explicitly include Exercises
+                .Include(w => w.Completion)
+                    .ThenInclude(c => c.CompletedExercises)
+                    .ThenInclude(ce => ce.CompletedSets)
                 .FirstOrDefaultAsync(w => w.Id == id);
 
             if (workout == null)
@@ -47,6 +56,13 @@ namespace FitStack.API.Repositories
         {
             _context.Workouts.Add(workout);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<Workout> UpdateAsync(Workout workout)
+        {
+            _context.Workouts.Update(workout);
+            await _context.SaveChangesAsync();
+            return workout;
         }
 
         public async Task DeleteAsync(int id)

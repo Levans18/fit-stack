@@ -3,7 +3,6 @@ using FitStack.API.DTOs;
 using FitStack.API.Models;
 using FitStack.API.Repositories;
 using FitStack.API.Services;
-using FitStack.Repositories;
 using Moq;
 
 namespace FitStackTests.API.Services {
@@ -174,5 +173,40 @@ namespace FitStackTests.API.Services {
             // Act & Assert
             await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _exerciseService.UpdateExerciseAsync(1, updateDto, mockUser));
         }
+
+        // [Fact]
+        // public async Task CompleteExerciseAsync_ShouldMarkExerciseAsCompleted_WhenValid()
+        // {
+        //     // Arrange
+        //     var mockUser = new User { Id = 1 };
+        //     var mockExercise = new Exercise
+        //     {
+        //         Id = 1,
+        //         Name = "Squats",
+        //         Sets = 3,
+        //         Reps = 10,
+        //         Weight = 100,
+        //         WorkoutId = 1
+        //     };
+        //     var mockWorkout = new Workout
+        //     {
+        //         Id = 1,
+        //         UserId = mockUser.Id,
+        //         Completion = new WorkoutCompletion { Id = 1 }
+        //     };
+
+        //     _exerciseRepositoryMock.Setup(repo => repo.GetExerciseByIdAsync(1)).ReturnsAsync(mockExercise);
+        //     _workoutRepositoryMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(mockWorkout);
+
+        //     // Act
+        //     var result = await _exerciseService.CompleteExerciseAsync(1, mockUser);
+
+        //     // Assert
+        //     Assert.NotNull(result);
+        //     Assert.Equal(mockExercise.Name, result.Name);
+        //     Assert.Equal(mockExercise.Sets, result.Sets);
+        //     Assert.Equal(mockExercise.Reps, result.Reps);
+        //     Assert.Equal(mockExercise.Weight, result.Weight);
+        // }
     }
 }

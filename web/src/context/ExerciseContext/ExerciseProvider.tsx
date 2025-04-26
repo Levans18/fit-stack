@@ -74,8 +74,32 @@ export const ExerciseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
+  const completeExercise = async (exerciseId: number): Promise<ExerciseDto> => {
+    try {
+      const res = await fetch(`http://localhost:5168/exercises/${exerciseId}/complete`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+  
+      if (!res.ok) {
+        throw new Error('Failed to complete exercise.');
+      }
+  
+      return await res.json();
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'An unexpected error occurred.');
+      } else {
+        setError('An unexpected error occurred.');
+      }
+      throw err;
+    }
+  };
+
   return (
-    <ExerciseContext.Provider value={{ fetchExercises, addExercise, deleteExercise, error }}>
+    <ExerciseContext.Provider value={{ fetchExercises, addExercise, deleteExercise, completeExercise, error }}>
       {children}
     </ExerciseContext.Provider>
   );
